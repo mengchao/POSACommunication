@@ -9,8 +9,8 @@ import vandy.mooc.aidl.AcronymCall;
 import vandy.mooc.aidl.AcronymData;
 import vandy.mooc.aidl.AcronymRequest;
 import vandy.mooc.aidl.AcronymResults;
-import vandy.mooc.services.AcronymServiceAsync;
-import vandy.mooc.services.AcronymServiceSync;
+import vandy.mooc.services.WeatherServiceAsync;
+import vandy.mooc.services.WeatherServiceSync;
 import vandy.mooc.utils.AcronymDataArrayAdapter;
 import vandy.mooc.utils.GenericServiceConnection;
 import vandy.mooc.utils.Utils;
@@ -27,7 +27,7 @@ import android.widget.ListView;
  * This class implements all the acronym-related operations defined in
  * the AcronymOps interface.
  */
-public class AcronymOpsImpl implements AcronymOps {
+public class WeatherOpsImpl implements WeatherOps {
     /**
      * Debugging tag used by the Android logger.
      */
@@ -74,7 +74,7 @@ public class AcronymOpsImpl implements AcronymOps {
     /**
      * Constructor initializes the fields.
      */
-    public AcronymOpsImpl(MainActivity activity) {
+    public WeatherOpsImpl(MainActivity activity) {
         // Initialize the WeakReference.
         mActivity = new WeakReference<>(activity);
 
@@ -151,13 +151,13 @@ public class AcronymOpsImpl implements AcronymOps {
         // bound.
         if (mServiceConnectionSync.getInterface() == null) 
             mActivity.get().bindService
-                (AcronymServiceSync.makeIntent(mActivity.get()),
+                (WeatherServiceSync.makeIntent(mActivity.get()),
                  mServiceConnectionSync,
                  Context.BIND_AUTO_CREATE);
 
         if (mServiceConnectionAsync.getInterface() == null) 
             mActivity.get().bindService
-                (AcronymServiceAsync.makeIntent(mActivity.get()),
+                (WeatherServiceAsync.makeIntent(mActivity.get()),
                  mServiceConnectionAsync,
                  Context.BIND_AUTO_CREATE);
     }
@@ -184,7 +184,7 @@ public class AcronymOpsImpl implements AcronymOps {
      * Initiate the asynchronous acronym lookup when the user presses
      * the "Look Up Async" button.
      */
-    public void expandAcronymAsync(View v) {
+    public void getWeatherAsync(View v) {
         AcronymRequest acronymRequest = 
             mServiceConnectionAsync.getInterface();
 
@@ -215,7 +215,7 @@ public class AcronymOpsImpl implements AcronymOps {
      * Initiate the synchronous acronym lookup when the user presses
      * the "Look Up Sync" button.
      */
-    public void expandAcronymSync(View v) {
+    public void getWeatherSync(View v) {
         final AcronymCall acronymCall = 
             mServiceConnectionSync.getInterface();
 

@@ -1,4 +1,4 @@
-package vandy.mooc.jsonacronym;
+package vandy.mooc.jsonweather;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,13 +8,12 @@ import java.util.List;
 
 import android.util.JsonReader;
 import android.util.JsonToken;
-import android.util.Log;
 
 /**
- * Parses the Json acronym data returned from the Acronym Services API
- * and returns a List of JsonAcronym objects that contain this data.
+ * Parses the Json weather data returned from the Weather Services API
+ * and returns a List of JsonWeather objects that contain this data.
  */
-public class AcronymJSONParser {
+public class WeatherJSONParser {
     /**
      * Used for logging purposes.
      */
@@ -25,7 +24,7 @@ public class AcronymJSONParser {
      * Parse the @a inputStream and convert it into a List of JsonAcronym
      * objects.
      */
-    public List<JsonAcronym> parseJsonStream(InputStream inputStream)
+    public List<JsonWeather> parseJsonStream(InputStream inputStream)
         throws IOException {
 
         // Create a JsonReader for the inputStream.
@@ -43,7 +42,7 @@ public class AcronymJSONParser {
      * Parse a Json stream and convert it into a List of JsonAcronym
      * objects.
      */
-    public List<JsonAcronym> parseAcronymServiceResults(JsonReader reader)
+    public List<JsonWeather> parseAcronymServiceResults(JsonReader reader)
         throws IOException {
 
         reader.beginArray();
@@ -60,10 +59,10 @@ public class AcronymJSONParser {
         }
     }
 
-    public List<JsonAcronym> parseAcronymMessage(JsonReader reader)
+    public List<JsonWeather> parseAcronymMessage(JsonReader reader)
         throws IOException {
 
-        List<JsonAcronym> acronyms = null;
+        List<JsonWeather> acronyms = null;
         reader.beginObject();
 
         try {
@@ -71,11 +70,11 @@ public class AcronymJSONParser {
             while (reader.hasNext()) {
                 String name = reader.nextName();
                 switch (name) {
-                case JsonAcronym.sf_JSON:
+                case JsonWeather.sf_JSON:
                     // Log.d(TAG, "reading sf field");
                     reader.nextString();
                     break;
-                case JsonAcronym.lfs_JSON:
+                case JsonWeather.lfs_JSON:
                     // Log.d(TAG, "reading lfs field");
                     if (reader.peek() == JsonToken.BEGIN_ARRAY)
                         acronyms = parseAcronymLongFormArray(reader);
@@ -96,7 +95,7 @@ public class AcronymJSONParser {
      * Parse a Json stream and convert it into a List of JsonAcronym
      * objects.
      */
-    public List<JsonAcronym> parseAcronymLongFormArray(JsonReader reader)
+    public List<JsonWeather> parseAcronymLongFormArray(JsonReader reader)
         throws IOException {
 
         // Log.d(TAG, "reading lfs elements");
@@ -104,7 +103,7 @@ public class AcronymJSONParser {
         reader.beginArray();
 
         try {
-            List<JsonAcronym> acronyms = new ArrayList<JsonAcronym>();
+            List<JsonWeather> acronyms = new ArrayList<JsonWeather>();
 
             while (reader.hasNext()) 
                 acronyms.add(parseAcronym(reader));
@@ -118,25 +117,25 @@ public class AcronymJSONParser {
     /**
      * Parse a Json stream and return a JsonAcronym object.
      */
-    public JsonAcronym parseAcronym(JsonReader reader) 
+    public JsonWeather parseAcronym(JsonReader reader)
         throws IOException {
 
         reader.beginObject();
 
-        JsonAcronym acronym = new JsonAcronym();
+        JsonWeather acronym = new JsonWeather();
         try {
             while (reader.hasNext()) {
                 String name = reader.nextName();
                 switch (name) {
-                case JsonAcronym.lf_JSON:
+                case JsonWeather.lf_JSON:
                     acronym.setLongForm(reader.nextString());
                     // Log.d(TAG, "reading lf " + acronym.getLongForm());
                     break;
-                case JsonAcronym.freq_JSON:
+                case JsonWeather.freq_JSON:
                     acronym.setFreq(reader.nextInt());
                     // Log.d(TAG, "reading freq " + acronym.getFreq());
                     break;
-                case JsonAcronym.since_JSON:
+                case JsonWeather.since_JSON:
                     acronym.setSince(reader.nextInt());
                     // Log.d(TAG, "reading since " + acronym.getSince());
                     break;

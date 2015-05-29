@@ -1,14 +1,11 @@
-package vandy.mooc.jsonacronym;
-
-import java.util.ArrayList;
-import java.util.List;
+package vandy.mooc.jsonweather;
 
 /**
  * This "Plain Ol' Java Object" (POJO) class represents data of
  * interest downloaded in Json from the Acronym Service.  We don't
  * care about all the data, just the fields defined in this class.
  */
-public class JsonAcronym {
+public class JsonWeather {
     /**
      * Various tags corresponding to data downloaded in Json from the
      * Acronym Service.
@@ -30,7 +27,7 @@ public class JsonAcronym {
     /**
      * Constructor that initializes all the fields of interest.
      */
-    public JsonAcronym(String longForm,
+    public JsonWeather(String longForm,
                        int freq,
                        int since) {
         mLongForm = longForm;
@@ -41,7 +38,7 @@ public class JsonAcronym {
     /**
      * No-op constructor.
      */
-    public JsonAcronym() {
+    public JsonWeather() {
     }
 
     /**

@@ -26,14 +26,14 @@
          android:id="@+id/button1"
          android:layout_width="wrap_content"
          android:layout_height="wrap_content"
-         android:onClick="expandAcronymSync"
+         android:onClick="getWeatherSync"
          android:text="Look Up Sync" />
 
       <Button
          android:id="@+id/button2"
          android:layout_width="wrap_content"
          android:layout_height="wrap_content"
-         android:onClick="expandAcronymAsync"
+         android:onClick="getWeatherAsync"
          android:text="Look Up Async" />
     </LinearLayout>
 

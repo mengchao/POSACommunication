@@ -1,23 +1,23 @@
 package vandy.mooc.activities;
 
-import vandy.mooc.operations.AcronymOps;
-import vandy.mooc.operations.AcronymOpsImpl;
+import vandy.mooc.operations.WeatherOps;
+import vandy.mooc.operations.WeatherOpsImpl;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.View;
 
 /**
- * The main Activity that prompts the user for Acronyms to expand via
- * various implementations of AcronymServiceSync and
- * AcronymServiceAsync and view via the results.  Extends
+ * The main Activity that prompts the user for city name to query weather info
+ * via various implementations of WeatherServiceSync and
+ * WeatherServiceAsync and view via the results.  Extends
  * LifecycleLoggingActivity so its lifecycle hook methods are logged
  * automatically.
  */
 public class MainActivity extends LifecycleLoggingActivity {
     /**
-     * Provides acronym-related operations.
+     * Provides weather-related operations.
      */
-    private AcronymOps mAcronymOps;
+    private WeatherOps mWeatherOps;
 
     /**
      * Hook method called when a new instance of Activity is created.
@@ -32,11 +32,11 @@ public class MainActivity extends LifecycleLoggingActivity {
         // initialization/implementation.
         super.onCreate(savedInstanceState);
 
-        // Create the AcronymOps object one time.
-        mAcronymOps = new AcronymOpsImpl(this);
+        // Create the WeatherOps object one time.
+        mWeatherOps = new WeatherOpsImpl(this);
 
         // Initiate the service binding protocol.
-        mAcronymOps.bindService();
+        mWeatherOps.bindService();
     }
 
     /**
@@ -46,7 +46,7 @@ public class MainActivity extends LifecycleLoggingActivity {
     @Override
     protected void onDestroy() {
         // Unbind from the Service.
-        mAcronymOps.unbindService();
+        mWeatherOps.unbindService();
 
         // Always call super class for necessary operations when an
         // Activity is destroyed.
@@ -60,22 +60,22 @@ public class MainActivity extends LifecycleLoggingActivity {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
-        mAcronymOps.onConfigurationChanged(newConfig);
+        mWeatherOps.onConfigurationChanged(newConfig);
     }
 
     /*
-     * Initiate the synchronous acronym lookup when the user presses
+     * Initiate the synchronous weather lookup when the user presses
      * the "Look Up Sync" button.
      */
-    public void expandAcronymSync(View v) {
-        mAcronymOps.expandAcronymSync(v);
+    public void getWeatherSync(View v) {
+        mWeatherOps.getWeatherSync(v);
     }
 
     /*
-     * Initiate the asynchronous acronym lookup when the user presses
+     * Initiate the asynchronous weather lookup when the user presses
      * the "Look Up Async" button.
      */
-    public void expandAcronymAsync(View v) {
-        mAcronymOps.expandAcronymAsync(v);
+    public void getWeatherAsync(View v) {
+        mWeatherOps.getWeatherAsync(v);
     }
 }

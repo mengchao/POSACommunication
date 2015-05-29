@@ -9,8 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import vandy.mooc.aidl.AcronymData;
-import vandy.mooc.jsonacronym.AcronymJSONParser;
-import vandy.mooc.jsonacronym.JsonAcronym;
+import vandy.mooc.aidl.WeatherData;
+import vandy.mooc.jsonweather.WeatherJSONParser;
+import vandy.mooc.jsonweather.JsonWeather;
 import android.app.Activity;
 import android.content.Context;
 import android.os.IBinder;
@@ -32,62 +33,67 @@ public class Utils {
     /** 
      * URL to the Acronym web service.
      */
-    private final static String sAcronym_Web_Service_URL =
-        "http://www.nactem.ac.uk/software/acromine/dictionary.py?sf=";
+    private final static String sWeather_Web_Service_URL =
+        "http://api.openweathermap.org/data/2.5/weather?q=";
 
     /**
-     * Obtain the Acronym information.
-     * 
-     * @return The information that responds to your current acronym search.
+     * Obtain the Weather information.
+     *
+     * @return The information that responds to your current weather search.
      */
-    public static List<AcronymData> getResults(final String acronym) {
-        // Create a List that will return the AcronymData obtained
-        // from the Acronym Service web service.
-        final List<AcronymData> returnList = 
-            new ArrayList<AcronymData>();
-            
-        // A List of JsonAcronym objects.
-        List<JsonAcronym> jsonAcronyms = null;
-
-        try {
-            // Append the location to create the full URL.
-            final URL url =
-                new URL(sAcronym_Web_Service_URL
-                        + acronym);
-
-            // Opens a connection to the Acronym Service.
-            HttpURLConnection urlConnection =
-                (HttpURLConnection) url.openConnection();
-            
-            // Sends the GET request and reads the Json results.
-            try (InputStream in =
-                 new BufferedInputStream(urlConnection.getInputStream())) {
-                 // Create the parser.
-                 final AcronymJSONParser parser =
-                     new AcronymJSONParser();
-
-                // Parse the Json results and create JsonAcronym data
-                // objects.
-                jsonAcronyms = parser.parseJsonStream(in);
-            } finally {
-                urlConnection.disconnect();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        if (jsonAcronyms != null && jsonAcronyms.size() > 0) {
-            // Convert the JsonAcronym data objects to our AcronymData
-            // object, which can be passed between processes.
-            for (JsonAcronym jsonAcronym : jsonAcronyms)
-                returnList.add(new AcronymData(jsonAcronym.getLongForm(),
-                                               jsonAcronym.getFreq(),
-                                               jsonAcronym.getSince()));
-             // Return the List of AcronymData.
-             return returnList;
-        }  else
-            return null;
+    public static List<WeatherData> getResults(final String location) {
+        return null;
     }
+
+
+//    public static List<AcronymData> getResults(final String acronym) {
+//        // Create a List that will return the AcronymData obtained
+//        // from the Acronym Service web service.
+//        final List<AcronymData> returnList =
+//            new ArrayList<AcronymData>();
+//
+//        // A List of JsonAcronym objects.
+//        List<JsonWeather> jsonAcronyms = null;
+//
+//        try {
+//            // Append the location to create the full URL.
+//            final URL url =
+//                new URL(sWeather_Web_Service_URL
+//                        + acronym);
+//
+//            // Opens a connection to the Acronym Service.
+//            HttpURLConnection urlConnection =
+//                (HttpURLConnection) url.openConnection();
+//
+//            // Sends the GET request and reads the Json results.
+//            try (InputStream in =
+//                 new BufferedInputStream(urlConnection.getInputStream())) {
+//                 // Create the parser.
+//                 final WeatherJSONParser parser =
+//                     new WeatherJSONParser();
+//
+//                // Parse the Json results and create JsonAcronym data
+//                // objects.
+//                jsonAcronyms = parser.parseJsonStream(in);
+//            } finally {
+//                urlConnection.disconnect();
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//        if (jsonAcronyms != null && jsonAcronyms.size() > 0) {
+//            // Convert the JsonAcronym data objects to our AcronymData
+//            // object, which can be passed between processes.
+//            for (JsonWeather jsonAcronym : jsonAcronyms)
+//                returnList.add(new AcronymData(jsonAcronym.getLongForm(),
+//                                               jsonAcronym.getFreq(),
+//                                               jsonAcronym.getSince()));
+//             // Return the List of AcronymData.
+//             return returnList;
+//        }  else
+//            return null;
+//    }
 
     /**
      * This method is used to hide a keyboard after a user has
