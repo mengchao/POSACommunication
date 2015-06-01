@@ -65,37 +65,37 @@ public class WeatherServiceSync extends LifecycleLoggingService {
      * Pattern.
      */
     WeatherCall.Stub mWeatherCallImpl = new WeatherCall.Stub() {
-            /**
-             * Implement the AIDL WeatherCall getCurrentWeather() method,
-             * which forwards to Utils getResults() to obtain
-             * the results from the Weather Web service and then
-             * returns the results back to the Activity.
-             */
-            @Override
-            public List<WeatherData> getCurrentWeather(String location)
+        /**
+         * Implement the AIDL WeatherCall getCurrentWeather() method,
+         * which forwards to Utils getResults() to obtain
+         * the results from the Weather Web service and then
+         * returns the results back to the Activity.
+         */
+        @Override
+        public List<WeatherData> getCurrentWeather(String location)
                 throws RemoteException {
 
-                // Call the Weather Web service to get the list of
-                // possible expansions of the designated location.
-                List<WeatherData> weatherResults =
-                    Utils.getResults(location);
+        // Call the Weather Web service to get the list of
+        // possible expansions of the designated location.
+        List<WeatherData> weatherResults =
+                Utils.getResults(location);
 
-                if (weatherResults != null) {
-                    Log.d(TAG, "" 
-                          + weatherResults.size()
-                          + " results for location: "
-                          + location);
+        if (weatherResults != null) {
+            Log.d(TAG, ""
+                    + weatherResults.size()
+                    + " results for location: "
+                    + location);
 
-                    // Return the list of weather info back to the
-                    // WeatherActivity.
-                    return weatherResults;
-                } else {
-                    // Create a zero-sized weatherResults object to
-                    // indicate to the caller that the location had no
-                    // weather info.
-                    weatherResults = new ArrayList<WeatherData>();
-                    return weatherResults;
-                }
-            }
-	};
+            // Return the list of weather info back to the
+            // WeatherActivity.
+            return weatherResults;
+        } else {
+            // Create a zero-sized weatherResults object to
+            // indicate to the caller that the location had no
+            // weather info.
+            weatherResults = new ArrayList<WeatherData>();
+            return weatherResults;
+        }
+        }
+    };
 }

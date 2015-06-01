@@ -21,48 +21,44 @@ public class WeatherJSONParser {
         this.getClass().getCanonicalName();
 
     /**
-     * Parse the @a inputStream and convert it into a List of JsonAcronym
+     * Parse the @a inputStream and convert it into a List of JsonWeather
      * objects.
      */
     public List<JsonWeather> parseJsonStream(InputStream inputStream)
         throws IOException {
-
         // Create a JsonReader for the inputStream.
         try (JsonReader reader =
-             new JsonReader(new InputStreamReader(inputStream,
-                                                  "UTF-8"))) {
+                     new JsonReader(new InputStreamReader(inputStream,
+                             "UTF-8"))) {
             // Log.d(TAG, "Parsing the results returned as an array");
 
             // Handle the array returned from the Acronym Service.
-            return parseAcronymServiceResults(reader);
+            return parseJsonWeatherArray(reader);
         }
     }
 
     /**
-     * Parse a Json stream and convert it into a List of JsonAcronym
+     * Parse a Json stream and convert it into a List of JsonWeather
      * objects.
      */
-    public List<JsonWeather> parseAcronymServiceResults(JsonReader reader)
+    public List<JsonWeather> parseJsonWeatherArray(JsonReader reader)
         throws IOException {
-
-        reader.beginArray();
-        try {
-            // If the acronym wasn't expanded return null;
-            if (reader.peek() == JsonToken.END_ARRAY)
-                return null;
-
-            // Create a JsonAcronym object for each element in the
-            // Json array.
-            return parseAcronymMessage(reader);
-        } finally {
-            reader.endArray();
-        }
+        List<JsonWeather> jsonWeather = new ArrayList<JsonWeather>();
+        jsonWeather.add(parseJsonWeather(reader));
+        return jsonWeather;
     }
 
-    public List<JsonWeather> parseAcronymMessage(JsonReader reader)
+    /**
+     * Parse a Json stream and return a JsonWeather object.
+     */
+    public JsonWeather parseJsonWeather(JsonReader reader) 
         throws IOException {
 
-        List<JsonWeather> acronyms = null;
+        Sys mSys = null;
+        Main mMain = null;
+        Wind mWind = null;
+        String mName = null;
+
         reader.beginObject();
 
         try {
@@ -70,84 +66,144 @@ public class WeatherJSONParser {
             while (reader.hasNext()) {
                 String name = reader.nextName();
                 switch (name) {
-                case JsonWeather.sf_JSON:
-                    // Log.d(TAG, "reading sf field");
-                    reader.nextString();
-                    break;
-                case JsonWeather.lfs_JSON:
-                    // Log.d(TAG, "reading lfs field");
-                    if (reader.peek() == JsonToken.BEGIN_ARRAY)
-                        acronyms = parseAcronymLongFormArray(reader);
-                    break outerloop;
-                default:
-		    reader.skipValue();
-                    // Log.d(TAG, "weird problem with " + name + " field");
-                    break;
+                    case JsonWeather.name_JSON:
+                        mName = parseName(reader);
+                        break;
+                    case JsonWeather.wind_JSON:
+                        mWind = parseWind(reader);
+                        break;
+                    case JsonWeather.main_JSON:
+                        mMain = parseMain(reader);
+                        break;
+                    case JsonWeather.sys_JSON:
+                        mSys = parseSys(reader);
+                        break;
+                    case JsonWeather.cod_JSON:
+                        reader.nextLong();
+                        break outerloop;
+                    default:
+                        // Other fields will not be used in the assignment, so
+                        // skip them
+                        reader.skipValue();
+                        break;
                 }
             }
         } finally {
-                reader.endObject();
+            reader.endObject();
         }
-        return acronyms;
+        // Other fields in JsonWeather will not be used in the assignment, so
+        // leave them blank
+        return new JsonWeather(mSys, null, mMain, null, mWind, 0, 0, mName, 0);
     }
-
+    
     /**
-     * Parse a Json stream and convert it into a List of JsonAcronym
-     * objects.
+     * Parse a Json stream and return a List of Weather objects.
      */
-    public List<JsonWeather> parseAcronymLongFormArray(JsonReader reader)
+    public String parseName(JsonReader reader) throws IOException {
+        // weather object is not stored in WeatherData, so no need to parse it
+        return reader.nextString();
+    }
+    
+    /**
+     * Parse a Json stream and return a Main Object.
+     */
+    public Main parseMain(JsonReader reader) 
         throws IOException {
 
-        // Log.d(TAG, "reading lfs elements");
-
-        reader.beginArray();
-
-        try {
-            List<JsonWeather> acronyms = new ArrayList<JsonWeather>();
-
-            while (reader.hasNext()) 
-                acronyms.add(parseAcronym(reader));
-            
-            return acronyms;
-        } finally {
-            reader.endArray();
-        }
-    }
-
-    /**
-     * Parse a Json stream and return a JsonAcronym object.
-     */
-    public JsonWeather parseAcronym(JsonReader reader)
-        throws IOException {
+        Main mMain = new Main();
 
         reader.beginObject();
 
-        JsonWeather acronym = new JsonWeather();
         try {
+            outerloop:
             while (reader.hasNext()) {
                 String name = reader.nextName();
                 switch (name) {
-                case JsonWeather.lf_JSON:
-                    acronym.setLongForm(reader.nextString());
-                    // Log.d(TAG, "reading lf " + acronym.getLongForm());
-                    break;
-                case JsonWeather.freq_JSON:
-                    acronym.setFreq(reader.nextInt());
-                    // Log.d(TAG, "reading freq " + acronym.getFreq());
-                    break;
-                case JsonWeather.since_JSON:
-                    acronym.setSince(reader.nextInt());
-                    // Log.d(TAG, "reading since " + acronym.getSince());
-                    break;
-                default:
-                    reader.skipValue();
-                    // Log.d(TAG, "ignoring " + name);
-                    break;
+                    case Main.temp_JSON:
+                        mMain.setTemp(reader.nextDouble());
+                        break;
+                    case Main.humidity_JSON:
+                        mMain.setHumidity(reader.nextLong());
+                        break;
+                    case Main.tempMax_JSON:
+                        reader.nextDouble();
+                        break outerloop;
+                    default:
+                        // Other fields will not be used in the assignment, so
+                        // skip them
+                        reader.skipValue();
+                        break;
                 }
-            } 
+            }
         } finally {
-                reader.endObject();
+            reader.endObject();
         }
-        return acronym;
+
+        return mMain;
+    }
+
+    /**
+     * Parse a Json stream and return a Wind Object.
+     */
+    public Wind parseWind(JsonReader reader) throws IOException {
+
+        Wind mWind = new Wind();
+
+        reader.beginObject();
+
+        try {
+            outerloop:
+            while (reader.hasNext()) {
+                String name = reader.nextName();
+                switch (name) {
+                    case Wind.speed_JSON:
+                        mWind.setSpeed(reader.nextDouble());
+                        break;
+                    case Wind.deg_JSON:
+                        mWind.setDeg(reader.nextDouble());
+                        break outerloop;
+                    default:
+                        reader.skipValue();
+                        break;
+                }
+            }
+        } finally {
+            reader.endObject();
+        }
+
+        return mWind;
+    }
+
+    /**
+     * Parse a Json stream and return a Sys Object.
+     */
+    public Sys parseSys(JsonReader reader) throws IOException {
+        Sys mSys = new Sys();
+
+        reader.beginObject();
+
+        try {
+            outerloop:
+            while (reader.hasNext()) {
+                String name = reader.nextName();
+                switch (name) {
+                    case Sys.sunrise_JSON:
+                        mSys.setSunrise(reader.nextLong());
+                        break;
+                    case Sys.sunset_JSON:
+                        mSys.setSunset(reader.nextLong());
+                        break outerloop;
+                    default:
+                        // Other fields will not be used in the assignment, so
+                        // skip them
+                        reader.skipValue();
+                        break;
+                }
+            }
+        } finally {
+            reader.endObject();
+        }
+
+        return mSys;
     }
 }

@@ -66,35 +66,35 @@ public class WeatherServiceAsync extends LifecycleLoggingService {
      * Pattern.
      */
     WeatherRequest.Stub mWeatherRequestImpl = new WeatherRequest.Stub() {
-            /**
-             * Implement the AIDL WeatherRequest getCurrentWeather()
-             * method, which forwards to Utils getResults() to
-             * obtain the results from the Weather Web service and
-             * then sends the results back to the Activity via a
-             * callback.
-             */
-            @Override
-            public void getCurrentWeather(String location,
+        /**
+         * Implement the AIDL WeatherRequest getCurrentWeather()
+         * method, which forwards to Utils getResults() to
+         * obtain the results from the Weather Web service and
+         * then sends the results back to the Activity via a
+         * callback.
+         */
+        @Override
+        public void getCurrentWeather(String location,
                                       WeatherResults callback)
-                throws RemoteException {
+            throws RemoteException {
 
-                // Call the Weather Web service to get the list of
-                // possible weather info of the designated location.
-                List<WeatherData> weatherResults = 
-                    Utils.getResults(location);
+            // Call the Weather Web service to get the list of
+            // possible weather info of the designated location.
+            List<WeatherData> weatherResults =
+                Utils.getResults(location);
 
-                // Invoke a one-way callback to send list of weather
-                // info back to the WeatherActivity.
-                if (weatherResults != null) {
-                    Log.d(TAG, "" 
-                          + weatherResults.size() 
-                          + " results for location: " 
-                          + location);
-                    callback.sendResults(weatherResults);
-                } else
-                    Log.e(TAG, "No weather info for "
-                                       + location
-                                       + " found");
-            }
+            // Invoke a one-way callback to send list of weather
+            // info back to the WeatherActivity.
+            if (weatherResults != null) {
+                Log.d(TAG, ""
+                      + weatherResults.size()
+                      + " results for location: "
+                      + location);
+                callback.sendResults(weatherResults);
+            } else
+                Log.e(TAG, "No weather info for "
+                                   + location
+                                   + " found");
+        }
 	};
 }

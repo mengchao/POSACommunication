@@ -1,85 +1,209 @@
 package vandy.mooc.jsonweather;
 
+import java.util.ArrayList;
+import java.util.List;
+
+
 /**
  * This "Plain Ol' Java Object" (POJO) class represents data of
- * interest downloaded in Json from the Acronym Service.  We don't
+ * interest downloaded in Json from the Weather Service.  We don't
  * care about all the data, just the fields defined in this class.
  */
 public class JsonWeather {
     /**
      * Various tags corresponding to data downloaded in Json from the
-     * Acronym Service.
+     * Weather Service.
      */
-    final public static String sf_JSON = "sf";
-    final public static String lfs_JSON = "lfs";
-    final public static String lf_JSON = "lf";
-    final public static String freq_JSON = "freq";
-    final public static String since_JSON = "since";
+    final public static String cod_JSON = "cod";
+    final public static String name_JSON = "name";
+    final public static String id_JSON = "id";
+    final public static String dt_JSON = "dt";
+    final public static String wind_JSON = "wind";
+    final public static String main_JSON = "main";
+    final public static String base_JSON = "base";
+    final public static String weather_JSON = "weather";
+    final public static String sys_JSON = "sys";
 
     /**
      * Various fields corresponding to data downloaded in Json from
-     * the Acronym Service.
+     * the Weather Service.
      */
-    private String mLongForm;
-    private int mFreq;
-    private int mSince;
+    private Sys mSys;
+    private String mBase;
+    private Main mMain;
+    private List<Weather> mWeather = new ArrayList<Weather>();
+    private Wind mWind;
+    private long mDt;
+    private long mId;
+    private String mName;
+    private long mCod;
 
     /**
      * Constructor that initializes all the fields of interest.
      */
-    public JsonWeather(String longForm,
-                       int freq,
-                       int since) {
-        mLongForm = longForm;
-        mFreq = freq;
-        mSince = since;
+    public JsonWeather(Sys sys,
+                       String base,
+                       Main main,
+                       List<Weather> weather,
+                       Wind wind,
+                       long dt,
+                       long id,
+                       String name,
+                       long cod) {
+        mSys = sys;
+        mBase = base;
+        mMain = main;
+        mWeather = weather;
+        mWind = wind;
+        mDt = dt;
+        mId = id;
+        mName = name;
+        mCod = cod;
     }
-    
+
     /**
-     * No-op constructor.
+     * No-op constructor
      */
     public JsonWeather() {
     }
 
     /**
-     * @return The longForm
+     * @return The sys
      */
-    public String getLongForm() {
-        return mLongForm;
+    public Sys getSys() {
+        return mSys;
     }
 
     /**
-     * Set mLongForm.
+     * @param sys
+     *            The sys
      */
-    public void setLongForm(String longForm) {
-        mLongForm = longForm;
+    public void setSys(Sys sys) {
+        mSys = sys;
     }
 
     /**
-     * @return The freq
+     * @return The base
      */
-    public int getFreq() {
-        return mFreq;
+    public String getBase() {
+        return mBase;
     }
 
     /**
-     * Set mFreq.
+     * @param base
+     *            The base
      */
-    public void setFreq(int freq) {
-        mFreq = freq;
+    public void setBase(String base) {
+        mBase = base;
     }
 
     /**
-     * @return The since
+     * @return The main
      */
-    public int getSince() {
-        return mSince;
+    public Main getMain() {
+        return mMain;
     }
 
     /**
-     * Set mSince.
+     * @param main
+     *            The main
      */
-    public void setSince(int since) {
-        mSince = since;
+    public void setMain(Main main) {
+        mMain = main;
+    }
+
+    
+    /**
+     * 
+     * @return The weather
+     */
+    public List<Weather> getWeather() {
+        return mWeather;
+    }
+
+    /**
+     * 
+     * @param weather
+     *            The weather
+     */
+    public void setWeather(List<Weather> weather) {
+        mWeather = weather;
+    }
+
+
+    /**
+     * @return The wind
+     */
+    public Wind getWind() {
+        return mWind;
+    }
+
+    /**
+     * 
+     * @param wind
+     *            The wind
+     */
+    public void setWind(Wind wind) {
+        mWind = wind;
+    }
+
+    /**
+     * @return The dt
+     */
+    public long getDt() {
+        return mDt;
+    }
+
+    /**
+     * @param dt
+     *            The dt
+     */
+    public void setDt(long dt) {
+        mDt = dt;
+    }
+
+    /**
+     * @return The id
+     */
+    public long getId() {
+        return mId;
+    }
+
+    /**
+     * @param id
+     *            The id
+     */
+    public void setId(long id) {
+        mId = id;
+    }
+
+    /**
+     * @return The name
+     */
+    public String getName() {
+        return mName;
+    }
+
+    /**
+     * @param name
+     *            The name
+     */
+    public void setName(String name) {
+        mName = name;
+    }
+
+    /**
+     * @return The cod
+     */
+    public long getCod() {
+        return mCod;
+    }
+
+    /**
+     * @param cod
+     *            The cod
+     */
+    public void setCod(long cod) {
+        mCod = cod;
     }
 }
