@@ -85,17 +85,13 @@ public class WeatherServiceSync extends LifecycleLoggingService {
                     + weatherResults.size()
                     + " results for location: "
                     + location);
-
-            // Return the list of weather info back to the
-            // WeatherActivity.
-            return weatherResults;
         } else {
-            // Create a zero-sized weatherResults object to
-            // indicate to the caller that the location had no
-            // weather info.
-            weatherResults = new ArrayList<WeatherData>();
-            return weatherResults;
+            Log.e(TAG, "Weather service is not available");
         }
+
+        // Return the list of weather info back to the
+        // WeatherActivity.
+        return weatherResults;
         }
     };
 }

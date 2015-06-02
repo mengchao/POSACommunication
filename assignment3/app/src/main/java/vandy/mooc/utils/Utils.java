@@ -62,8 +62,10 @@ public class Utils {
         if (timeElapsed >= CACHE_EXPIRATION_TIME || timeElapsed < 0) {
             Log.i(TAG, "Query weather info from web service");
             weatherData = queryDataFromWeatherWebService(location);
-            weatherDataCachedForLocation.put(location, weatherData);
-            timeOfCacheForWeather.put(location, currentTime);
+            if (weatherData != null) {
+                weatherDataCachedForLocation.put(location, weatherData);
+                timeOfCacheForWeather.put(location, currentTime);
+            }
         } else {
             Log.i(TAG, "Getting weather info from cache");
             weatherData = weatherDataCachedForLocation.get(location);
@@ -107,12 +109,13 @@ public class Utils {
             }
         } catch (IOException e) {
             e.printStackTrace();
+            return null;
         }
 
-        if (jsonWeathers != null && jsonWeathers.size() > 0) {
+        if (jsonWeathers != null) {
             // Convert the JsonWeather data objects to our WeatherData
             // object, which can be passed between processes.
-            for (JsonWeather jsonWeather : jsonWeathers)
+            for (JsonWeather jsonWeather : jsonWeathers) {
                 returnList.add(new WeatherData(jsonWeather.getName(),
                         jsonWeather.getWind().getSpeed(),
                         jsonWeather.getWind().getDeg(),
@@ -120,10 +123,10 @@ public class Utils {
                         jsonWeather.getMain().getHumidity(),
                         jsonWeather.getSys().getSunrise(),
                         jsonWeather.getSys().getSunset()));
-             // Return the List of WeatherData.
-             return returnList;
-        }  else
-            return null;
+            }
+        }
+
+        return returnList;
     }
 
     /**

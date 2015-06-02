@@ -5,13 +5,12 @@ import java.util.List;
 
 import vandy.mooc.R;
 import vandy.mooc.activities.MainActivity;
-import vandy.mooc.aidl.AcronymCall;
-import vandy.mooc.aidl.AcronymData;
-import vandy.mooc.aidl.AcronymRequest;
-import vandy.mooc.aidl.AcronymResults;
+import vandy.mooc.aidl.WeatherCall;
+import vandy.mooc.aidl.WeatherData;
+import vandy.mooc.aidl.WeatherRequest;
+import vandy.mooc.aidl.WeatherResults;
 import vandy.mooc.services.WeatherServiceAsync;
 import vandy.mooc.services.WeatherServiceSync;
-import vandy.mooc.utils.AcronymDataArrayAdapter;
 import vandy.mooc.utils.GenericServiceConnection;
 import vandy.mooc.utils.Utils;
 import android.content.Context;
@@ -21,11 +20,11 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.ListView;
+import android.widget.TextView;
 
 /**
- * This class implements all the acronym-related operations defined in
- * the AcronymOps interface.
+ * This class implements all the weather-related operations defined in
+ * the WeatherOps interface.
  */
 public class WeatherOpsImpl implements WeatherOps {
     /**
@@ -39,37 +38,31 @@ public class WeatherOpsImpl implements WeatherOps {
     protected WeakReference<MainActivity> mActivity;
     	
     /**
-     * The ListView that will display the results to the user.
+     * The TextView that will display the results to the user.
      */
-    protected WeakReference<ListView> mListView;
+    protected WeakReference<TextView> mWeatherData;
 
     /**
-     * Acronym entered by the user.
+     * Location entered by the user.
      */
     protected WeakReference<EditText> mEditText;
 
     /**
      * List of results to display (if any).
      */
-    protected List<AcronymData> mResults;
-
-    /**
-     * A custom ArrayAdapter used to display the list of AcronymData
-     * objects.
-     */
-    protected WeakReference<AcronymDataArrayAdapter> mAdapter;
+    protected WeatherData mResult;
 
     /**
      * This GenericServiceConnection is used to receive results after
-     * binding to the AcronymServiceSync Service using bindService().
+     * binding to the WeatherServiceSync Service using bindService().
      */
-    private GenericServiceConnection<AcronymCall> mServiceConnectionSync;
+    private GenericServiceConnection<WeatherCall> mServiceConnectionSync;
 
     /**
      * This GenericServiceConnection is used to receive results after
-     * binding to the AcronymServiceAsync Service using bindService().
+     * binding to the WeatherServiceAsync Service using bindService().
      */
-    private GenericServiceConnection<AcronymRequest> mServiceConnectionAsync;
+    private GenericServiceConnection<WeatherRequest> mServiceConnectionAsync;
 
     /**
      * Constructor initializes the fields.
@@ -91,22 +84,15 @@ public class WeatherOpsImpl implements WeatherOps {
         // Get references to the UI components.
         mActivity.get().setContentView(R.layout.main_activity);
 
-        // Store the EditText that holds the urls entered by the user
+        // Store the EditText that holds the location entered by the user
         // (if any).
         mEditText = new WeakReference<>
             ((EditText) mActivity.get().findViewById(R.id.editText1));
 
-        // Store the ListView for displaying the results entered.
-        mListView = new WeakReference<>
-            ((ListView) mActivity.get().findViewById(R.id.listView1));
+        // Store the TextView for displaying the results entered.
+        mWeatherData = new WeakReference<>
+            ((TextView) mActivity.get().findViewById(R.id.weatherData));
 
-        // Create a local instance of our custom Adapter for our
-        // ListView.
-        mAdapter = new WeakReference<>
-            (new AcronymDataArrayAdapter(mActivity.get()));
-
-        // Set the adapter to the ListView.
-        mListView.get().setAdapter(mAdapter.get());
     }
 
     /**
@@ -115,14 +101,13 @@ public class WeatherOpsImpl implements WeatherOps {
      */
     private void initializeNonViewFields() {
         mServiceConnectionSync = 
-            new GenericServiceConnection<AcronymCall>(AcronymCall.class);
+            new GenericServiceConnection<WeatherCall>(WeatherCall.class);
 
         mServiceConnectionAsync =
-            new GenericServiceConnection<AcronymRequest>(AcronymRequest.class);
+            new GenericServiceConnection<WeatherRequest>(WeatherRequest.class);
 
         // Display results if any (due to runtime configuration change).
-        if (mResults != null)
-            displayResults(mResults);
+        displayResults();
     }
 
     /**
@@ -145,9 +130,9 @@ public class WeatherOpsImpl implements WeatherOps {
     public void bindService() {
         Log.d(TAG, "calling bindService()");
 
-        // Launch the Acronym Bound Services if they aren't already
+        // Launch the Weather Bound Services if they aren't already
         // running via a call to bindService(), which binds this
-        // activity to the AcronymService* if they aren't already
+        // activity to the WeatherService* if they aren't already
         // bound.
         if (mServiceConnectionSync.getInterface() == null) 
             mActivity.get().bindService
@@ -181,16 +166,16 @@ public class WeatherOpsImpl implements WeatherOps {
     }
 
     /*
-     * Initiate the asynchronous acronym lookup when the user presses
+     * Initiate the asynchronous weather lookup when the user presses
      * the "Look Up Async" button.
      */
     public void getWeatherAsync(View v) {
-        AcronymRequest acronymRequest = 
+        WeatherRequest weatherRequest =
             mServiceConnectionAsync.getInterface();
 
-        if (acronymRequest != null) {
-            // Get the acronym entered by the user.
-            final String acronym =
+        if (weatherRequest != null) {
+            // Get the location entered by the user.
+            final String location =
                 mEditText.get().getText().toString();
 
             resetDisplay();
@@ -198,52 +183,52 @@ public class WeatherOpsImpl implements WeatherOps {
             try {
                 // Invoke a one-way AIDL call, which does not block
                 // the client.  The results are returned via the
-                // sendResults() method of the mAcronymResults
+                // sendResults() method of the mWeatherResults
                 // callback object, which runs in a Thread from the
                 // Thread pool managed by the Binder framework.
-                acronymRequest.expandAcronym(acronym,
-                                             mAcronymResults);
+                weatherRequest.getCurrentWeather(location,
+                                                 mWeatherResults);
             } catch (RemoteException e) {
                 Log.e(TAG, "RemoteException:" + e.getMessage());
             }
         } else {
-            Log.d(TAG, "acronymRequest was null.");
+            Log.d(TAG, "weatherRequest was null.");
         }
     }
 
     /*
-     * Initiate the synchronous acronym lookup when the user presses
+     * Initiate the synchronous weather lookup when the user presses
      * the "Look Up Sync" button.
      */
     public void getWeatherSync(View v) {
-        final AcronymCall acronymCall = 
+        final WeatherCall weatherCall =
             mServiceConnectionSync.getInterface();
 
-        if (acronymCall != null) {
-            // Get the acronym entered by the user.
-            final String acronym =
+        if (weatherCall != null) {
+            // Get the location entered by the user.
+            final String location =
                 mEditText.get().getText().toString();
 
             resetDisplay();
 
-            // Use an anonymous AsyncTask to download the Acronym data
+            // Use an anonymous AsyncTask to download the weather data
             // in a separate thread and then display any results in
             // the UI thread.
-            new AsyncTask<String, Void, List<AcronymData>> () {
+            new AsyncTask<String, Void, List<WeatherData>> () {
                 /**
-                 * Acronym we're trying to expand.
+                 * Location where we are querying for weather
                  */
-                private String mAcronym;
+                private String mLocation;
 
                 /**
-                 * Retrieve the expanded acronym results via a
+                 * Retrieve the weather lookup results via a
                  * synchronous two-way method call, which runs in a
                  * background thread to avoid blocking the UI thread.
                  */
-                protected List<AcronymData> doInBackground(String... acronyms) {
+                protected List<WeatherData> doInBackground(String... locations) {
                     try {
-                        mAcronym = acronyms[0];
-                        return acronymCall.expandAcronym(mAcronym);
+                        mLocation = locations[0];
+                        return weatherCall.getCurrentWeather(mLocation);
                     } catch (RemoteException e) {
                         e.printStackTrace();
                     }
@@ -253,68 +238,76 @@ public class WeatherOpsImpl implements WeatherOps {
                 /**
                  * Display the results in the UI Thread.
                  */
-                protected void onPostExecute(List<AcronymData> acronymDataList) {
-                    if (acronymDataList.size() > 0)
-                        displayResults(acronymDataList);
-                    else 
+                protected void onPostExecute(List<WeatherData> weatherDataList) {
+                    if (weatherDataList == null) {
+                        mResult = null;
+                        displayResults();
                         Utils.showToast(mActivity.get(),
-                                        "no expansions for "
-                                        + mAcronym
+                                "weather service is not available");
+                    }
+                    else if (weatherDataList.size() == 0) {
+                        mResult = null;
+                        displayResults();
+                        Utils.showToast(mActivity.get(),
+                                "no weather info for "
+                                        + mLocation
                                         + " found");
+                    }
+                    else {
+                        mResult = weatherDataList.get(0);
+                        displayResults();
+                    }
                 }
-                // Execute the AsyncTask to expand the acronym without
+                // Execute the AsyncTask to lookup the weather without
                 // blocking the caller.
-            }.execute(acronym);
+            }.execute(location);
         } else {
-            Log.d(TAG, "mAcronymCall was null.");
+            Log.d(TAG, "mWeatherCall was null.");
         }
     }
 
     /**
-     * The implementation of the AcronymResults AIDL Interface, which
-     * will be passed to the Acronym Web service using the
-     * AcronymRequest.expandAcronym() method.
+     * The implementation of the WeatherResults AIDL Interface, which
+     * will be passed to the Weather Web service using the
+     * WeatherRequest.getCurrentWeather() method.
      * 
-     * This implementation of AcronymResults.Stub plays the role of
+     * This implementation of WeatherResults.Stub plays the role of
      * Invoker in the Broker Pattern since it dispatches the upcall to
      * sendResults().
      */
-    private AcronymResults.Stub mAcronymResults = new AcronymResults.Stub() {
+    private WeatherResults.Stub mWeatherResults = new WeatherResults.Stub() {
             /**
-             * This method is invoked by the AcronymServiceAsync to
-             * return the results back to the AcronymActivity.
+             * This method is invoked by the WeatherServiceAsync to
+             * return the results back to the WeatherActivity.
              */
             @Override
-            public void sendResults(final List<AcronymData> acronymDataList)
+            public void sendResults(final List<WeatherData> weatherDataList)
                 throws RemoteException {
-                // Since the Android Binder framework dispatches this
-                // method in a background Thread we need to explicitly
-                // post a runnable containing the results to the UI
-                // Thread, where it's displayed.
-                mActivity.get().runOnUiThread(new Runnable() {
+        // Since the Android Binder framework dispatches this
+        // method in a background Thread we need to explicitly
+        // post a runnable containing the results to the UI
+        // Thread, where it's displayed.
+        mActivity.get().runOnUiThread(new Runnable() {
                         public void run() {
-                            displayResults(acronymDataList);
-                        }
-                    });
-            }
-
-            /**
-             * This method is invoked by the AcronymServiceAsync to
-             * return error results back to the AcronymActivity.
-             */
-            @Override
-            public void sendError(final String reason)
-                throws RemoteException {
-                // Since the Android Binder framework dispatches this
-                // method in a background Thread we need to explicitly
-                // post a runnable containing the results to the UI
-                // Thread, where it's displayed.
-                mActivity.get().runOnUiThread(new Runnable() {
-                        public void run() {
-                            Utils.showToast(mActivity.get(),
-                                            reason);
-                        }
-                    });
+            displayResults();
+            if (weatherDataList == null) {
+                mResult = null;
+                Utils.showToast(mActivity.get(),
+                        "weather service is not available");
+                }
+                else if (weatherDataList.size() == 0) {
+                    mResult = null;
+                    Utils.showToast(mActivity.get(),
+                        "no weather info for "
+                        + mEditText.get().getText()
+                        + " found");
+                    }
+                else {
+                    mResult = weatherDataList.get(0);
+                }
+                displayResults();
+        }
+              });
             }
 	};
 
@@ -324,23 +317,20 @@ public class WeatherOpsImpl implements WeatherOps {
      * @param results
      *            List of Results to be displayed.
      */
-    private void displayResults(List<AcronymData> results) {
-        mResults = results;
-
-        // Set/change data set.
-        mAdapter.get().clear();
-        mAdapter.get().addAll(mResults);
-        mAdapter.get().notifyDataSetChanged();
+    private void displayResults() {
+        if (mResult != null) {
+            mWeatherData.get().setText(mResult.toString());
+        } else {
+            mWeatherData.get().setText("");
+        }
     }
 
     /**
-     * Reset the display prior to attempting to expand a new acronym.
+     * Reset the display prior to attempting to lookup weather for a new location.
      */
     private void resetDisplay() {
         Utils.hideKeyboard(mActivity.get(),
                            mEditText.get().getWindowToken());
-        mResults = null;
-        mAdapter.get().clear();
-        mAdapter.get().notifyDataSetChanged();
+        mResult = null;
     }
 }

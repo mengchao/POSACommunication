@@ -1,5 +1,6 @@
 package vandy.mooc.services;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import vandy.mooc.aidl.WeatherData;
@@ -90,11 +91,11 @@ public class WeatherServiceAsync extends LifecycleLoggingService {
                       + weatherResults.size()
                       + " results for location: "
                       + location);
-                callback.sendResults(weatherResults);
-            } else
-                Log.e(TAG, "No weather info for "
-                                   + location
-                                   + " found");
+
+            } else {
+                Log.e(TAG, "Weather service is not available");
+            }
+            callback.sendResults(weatherResults);
         }
 	};
 }

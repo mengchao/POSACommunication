@@ -27,14 +27,22 @@ public class WeatherJSONParser {
     public List<JsonWeather> parseJsonStream(InputStream inputStream)
         throws IOException {
         // Create a JsonReader for the inputStream.
+        List<JsonWeather> jsonWeathers = null;
+
         try (JsonReader reader =
                      new JsonReader(new InputStreamReader(inputStream,
                              "UTF-8"))) {
             // Log.d(TAG, "Parsing the results returned as an array");
 
-            // Handle the array returned from the Acronym Service.
-            return parseJsonWeatherArray(reader);
+            // Handle the array returned from the Weather Service.
+            jsonWeathers = parseJsonWeatherArray(reader);
         }
+        catch (Exception e) {
+            // No weather info for the location
+            jsonWeathers = new ArrayList<>();
+        }
+
+        return jsonWeathers;
     }
 
     /**
@@ -43,9 +51,12 @@ public class WeatherJSONParser {
      */
     public List<JsonWeather> parseJsonWeatherArray(JsonReader reader)
         throws IOException {
-        List<JsonWeather> jsonWeather = new ArrayList<JsonWeather>();
-        jsonWeather.add(parseJsonWeather(reader));
-        return jsonWeather;
+        List<JsonWeather> jsonWeathers = new ArrayList<JsonWeather>();
+        JsonWeather jsonWeather = parseJsonWeather(reader);
+        if (jsonWeather != null) {
+            jsonWeathers.add(jsonWeather);
+        }
+        return jsonWeathers;
     }
 
     /**
@@ -79,7 +90,10 @@ public class WeatherJSONParser {
                         mSys = parseSys(reader);
                         break;
                     case JsonWeather.cod_JSON:
-                        reader.nextLong();
+                        long httpResult = reader.nextLong();
+                        if (httpResult == 404) {
+                            return null;
+                        }
                         break outerloop;
                     default:
                         // Other fields will not be used in the assignment, so

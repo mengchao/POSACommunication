@@ -4,7 +4,7 @@ import android.content.res.Configuration;
 import android.view.View;
 
 /**
- * This class defines all the acronym-related operations.
+ * This class defines all the weather-related operations.
  */
 public interface WeatherOps {
     /**
@@ -18,13 +18,13 @@ public interface WeatherOps {
     public void unbindService();
 
     /*
-     * Initiate the synchronous acronym lookup when the user presses
+     * Initiate the synchronous weahter lookup when the user presses
      * the "Look Up Sync" button.
      */
     public void getWeatherSync(View v);
 
     /*
-     * Initiate the asynchronous acronym lookup when the user presses
+     * Initiate the asynchronous weather lookup when the user presses
      * the "Look Up Async" button.
      */
     public void getWeatherAsync(View v);
